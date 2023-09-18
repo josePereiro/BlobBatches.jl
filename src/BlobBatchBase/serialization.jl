@@ -25,7 +25,7 @@ function _unsafe_deserialize(::Type{BlobBatch}, rootdir::String)
         if _is_blobframe_fn(fn)
             fname = _parse_blobframe_fn(fn)
             # just 'register' frame (load at demand)
-            bframes[fname] = Vector{Dict{String, Any}}()
+            bframes[fname] = BLOBFRAME_DATATYPE()
             continue
         end
         if _is_batchmeta_fn(fn)

@@ -3,6 +3,7 @@ module BlobBatches
     using Serialization
     using SimpleLockFiles
     using OrderedCollections
+    using Base.Threads
 
     # exports
     export BlobBatch, rootdir, 
@@ -10,6 +11,7 @@ module BlobBatches
            blobframes, blobframe, blobframe!, blobframes_names
     export deserialize, serialize
     export lockfile, lockid
+    export test_blobdb
 
     #! include .
     
@@ -25,6 +27,8 @@ module BlobBatches
     include("BlobBatchBase/interface.jl")
     include("BlobBatchBase/lockfile.jl")
     include("BlobBatchBase/serialization.jl")
+    include("BlobBatchBase/testdb.jl")
+    include("BlobBatchBase/utils.jl")
     include("BlobBatchBase/walkdir.jl")
 
 end

@@ -40,21 +40,7 @@ using Test
     
         try
             # create blobbatches
-            for it in 1:10
-                bdir = joinpath(root, string("batch_", it))
-                bb = BlobBatch(bdir)
-                # fill some stuff
-                bm = batchmeta(bb)
-                bm["time"] = time()
-                bm["it"] = it
-                for oi in 1:10
-                    bf = blobframe!(bb) # load
-                    obj = Dict("r" => rand(), "time" => time())
-                    push!(bf, obj)
-                end
-                serialize(bb);
-                @test isdir(bb);
-            end
+            test_blobdb(root; nbatches = 10)
     
             # check
             bbs = []

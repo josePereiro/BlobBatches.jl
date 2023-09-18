@@ -11,12 +11,15 @@ function Base.show(io::IO, bb::BlobBatch)
     println(io, "BlobBatch")
     println(io, "rootdir:")
     println(io, "    ", rootdir(bb))
+    println(io, "size:")
+    val, unit = _canonical_bytes(filesize(bb))
+    println(io, "    ", round(val; digits = 3), " ", unit)
 
     # batchmeta
     bmeta = batchmeta(bb)
     if !isempty(bmeta)
         println(io, "batchmeta:  ")
-        println("    [", join(keys(bmeta), ", "), "]")
+        println(io, "    ", _pretty_str_keys(keys(bmeta)))
     end
 
     # blobframes
@@ -25,11 +28,13 @@ function Base.show(io::IO, bb::BlobBatch)
         println(io, "blobframes: ")
         for (ffn, dat) in bframes
             print(io, "    ", basename(ffn), " => ")
-            if isnothing(dat)
-                println(io, "unloaded!!!")
-            else
-                println(io, length(dat), " blobs loaded!!!")
+            print(io, length(dat), " blobs")
+            if length(dat) > 0 
+                print(io, ", first keys: ")
+                print(io, _pretty_str_keys(keys(first(dat))))
             end
+            println(io)
+            
         end
     end
 
