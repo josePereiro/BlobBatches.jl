@@ -87,6 +87,22 @@ using Test
             rm(root; force = true, recursive = true)
         end
     end
+
+    # Test lock
+    let
+        bbroot = joinpath(@__DIR__, "0x77cfa1eef01bca90")
+        rm(bbroot; force = true, recursive = true)
+        try
+            bb = BlobBatch(bbroot)
+            lock(bb)
+            @test islocked(bb)
+            @test unlock(bb)
+            @test !islocked(bb)
+            @test !isfile(lockfile(bb))
+        finally
+            rm(bbroot; force = true, recursive = true)
+        end
+    end
 end
 
 nothing

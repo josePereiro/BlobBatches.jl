@@ -9,6 +9,7 @@ module BlobBatches
            batchmeta, batchmeta!, 
            blobframes, blobframe, blobframe!, blobframes_names
     export deserialize, serialize
+    export lockfile, lockid
 
     #! include .
     
