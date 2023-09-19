@@ -28,10 +28,12 @@ function Base.show(io::IO, bb::BlobBatch)
         println(io, "blobframes: ")
         for (ffn, dat) in bframes
             print(io, "    ", basename(ffn), " => ")
-            print(io, length(dat), " blobs")
             if length(dat) > 0 
+                print(io, length(dat), " blobs")
                 print(io, ", first keys: ")
                 print(io, _pretty_str_keys(keys(first(dat))))
+            else
+                print(io, " 0 blobs (maybe unloaded)")
             end
             println(io)
             
