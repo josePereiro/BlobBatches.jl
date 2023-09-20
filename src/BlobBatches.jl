@@ -8,7 +8,7 @@ module BlobBatches
     using Base.Threads
 
     export BlobBatch
-    export deserializa, serialize
+    export deserialize, deserialize!, serialize
     export hasframe, unloadframe!, loadframe!, isframeloaded
     export hasfilesys, rootdir, rootdir!, framefile
     export getlock, setlock!
