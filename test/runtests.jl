@@ -86,6 +86,45 @@ using Test
             rm(root; force = true, recursive = true)
         end
     end
+
+    ## --------------------------------------------------------
+    # walkdir test
+    let
+        root = joinpath(@__DIR__, "blobs")
+        rm(root; force = true, recursive = true)
+        mkpath(root)
+
+        try
+            # create blobbatches
+            test_blobdb(root; nbatches = 10)
+            
+            # check
+            bbs = []
+            for bb in walkdir(BlobBatch, root; skipempty = true) 
+                @test !isempty(bb)
+                
+                @test haskey(bb["meta"], "time")
+                @test bb["meta"]["time"] < time()
+                
+                @test !isempty(bb[1]) # loaded
+                for el in bb[1]
+                    @test haskey(el, "time")
+                    @test el["time"] < time()
+                end
+
+                # empty
+                @test !isempty(bb)
+                empty!(bb)
+                @test isempty(bb)
+
+                # collect
+                push!(bbs, bb)
+            end
+            @test length(bbs) == 10
+        finally
+            # rm(root; force = true, recursive = true)
+        end
+    end
     
 end
 

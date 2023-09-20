@@ -119,8 +119,6 @@ function loadframe!(bb::BlobBatch, k, ks...)
     end
 end
 
-isframeloaded(bb::BlobBatch, k, ks...) = haskey(bb.frames, framekey(k, ks...))
-
 # assumes is valid bb file
 _frammekey_from_path(path) = basename(path)[1:(end - length(_BLOBBATCH_FRAME_EXT))]
 
@@ -129,8 +127,11 @@ function loadallframe!(bb::BlobBatch)
     lock(bb) do
         for fn in framefiles(bb)
             key = _frammekey_from_path(fn)
+            # reserved
             key == "extras" && continue # ignore extras
-            bb[key] = serialize(fn, dat)
+            loadframe!(bb, key)
         end
     end
 end
+
+isframeloaded(bb::BlobBatch, k, ks...) = haskey(bb.frames, framekey(k, ks...))

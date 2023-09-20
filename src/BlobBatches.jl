@@ -10,6 +10,7 @@ module BlobBatches
     export hasframe, unloadframe!, loadframe!, isframeloaded
     export hasfilesys, rootdir, rootdir!, framefile
     export getlock, setlock!
+    export test_blobdb
     
     #! include .
     
@@ -22,5 +23,7 @@ module BlobBatches
     include("BlobBatchBase/frames.jl")
     include("BlobBatchBase/lock.jl")
     include("BlobBatchBase/serialization.jl")
+    include("BlobBatchBase/testdb.jl")
     include("BlobBatchBase/utils.jl")
+    include("BlobBatchBase/walkdir.jl")
 end
