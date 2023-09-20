@@ -14,7 +14,6 @@ framefile(bb::BlobBatch, k, ks...) = joinpath(
 )
 
 ## --------------------------------------------------------
-import Base.readdir
 function framefiles(bb::BlobBatch)
     filter(readdir(rootdir(bb); join = true)) do path
         isfile(path) && endswith(basename(path), _BLOBBATCH_FRAME_EXT)
@@ -27,6 +26,9 @@ Base.isfile(bb::BlobBatch, k, ks...) = isfile(framefile(bb, k, ks...))
 
 ## --------------------------------------------------------
 import Base.filesize
+function Base.filesize(bb::BlobBatch, k, ks...)
+    filesize(framefile(bb, k, ks...))
+end
 function Base.filesize(bb::BlobBatch)
     fsize = 0.0;
     for fn in framefiles(bb)
@@ -38,6 +40,9 @@ end
 import Base.rm
 function Base.rm(bb::BlobBatch; force = false)
     rm(rootdir(bb); force, recursive = true)
+end
+function Base.rm(bb::BlobBatch, k, ks...; force = false)
+    rm(framefile(bb, k, ks...); force)
 end
 
 import Base.mkpath
