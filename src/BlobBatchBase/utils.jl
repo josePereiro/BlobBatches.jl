@@ -1,9 +1,8 @@
-function filesize(bb::BlobBatch)
-    fsize = 0.0;
-    for fn in readdir(rootdir(bb); join = true)
-        isfile(fn) || continue
-        endswith(basename(fn), ".bb.jls") || continue
-        fsize += filesize(fn)
+## --------------------------------------------------------
+function _quoted_join(col, sep)
+    strs = String[]
+    for el in col
+        push!(strs, string("\"", el, "\""))
     end
-    return fsize
+    return join(strs, sep)
 end

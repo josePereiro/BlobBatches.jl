@@ -9,7 +9,8 @@ function Base.walkdir(::Type{BlobBatch}, root::AbstractString;
         for (currdir, dirs, _) in walkdir(root; topdown, follow_symlinks, onerror)
             for dir in dirs
                 # path to directories
-                bb = BlobBatch(joinpath(currdir, dir))
+                dir = joinpath(currdir, dir)
+                bb = BlobBatch(dir)
                 skipempty && isempty(bb) && continue
                 put!(_ch, bb)
             end
@@ -23,10 +24,11 @@ function Base.readdir(::Type{BlobBatch}, root::AbstractString;
         skipempty = true, 
         chsize = 2
     )
-    files = readdir(root; join = true, sort)
+    files = readdir(root; join = false, sort)
     return Channel{BlobBatch}(chsize) do _ch
         for dir in files
-            # path to directories
+            isfile(dir) && continue
+            dir = joinpath(root, dir)
             bb = BlobBatch(dir)
             skipempty && isempty(bb) && continue
             put!(_ch, bb)

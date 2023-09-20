@@ -2,93 +2,50 @@ using BlobBatches
 using Test
 
 @testset "BlobBatches.jl" begin
-    
-    # basic serialization/loading test
+    # TEST 1
     let
-        bbroot = joinpath(@__DIR__, "0x77cfa1eef01bca90")
-        rm(bbroot; force = true, recursive = true)
-        @assert !isdir(bbroot)
-        try
-            bb0 = BlobBatch(bbroot)
-            for it in 1:10
-                bf = blobframe!(bb0) # load
-                obj = Dict("A" => rand(), "B" => :KAKA)
-                push!(bf, obj)
-            end
-            # bf0 = blobframe(bb0, 1)
-            # @test !isempty(bf0)
-            bf0 = blobframe!(bb0, 1)
-            @test !isempty(bf0)
-            serialize(bb0)
-            
-            bb1 = BlobBatch(bbroot)
-            # bf1 = blobframe(bb1, 1)
-            # @test isempty(bf1) # unloaded
-            bf1 = blobframe!(bb1, 1)
-            @test !isempty(bf1) # loaded
-            @test all(bf0 .== bf1)
-        finally
-            rm(bbroot; force = true, recursive = true)
-        end
-    end
-
-    # walkdir test
-    let
-        root = joinpath(@__DIR__, "blobs")
+        #
+        root = joinpath(@__DIR__, "blob")
         rm(root; force = true, recursive = true)
         mkpath(root)
-    
         try
-            # create blobbatches
-            test_blobdb(root; nbatches = 10)
-    
-            # check
-            bbs = []
-            for bb in walkdir(BlobBatch, root; skipempty = true) 
-                @test !isempty(bb)
-                
-                bm = batchmeta(bb)
-                @test haskey(bm, "time")
-                @test bm["time"] < time()
-                
-                # bf = blobframe(bb)
-                # @test isempty(bf) # non loaded
-                bf = blobframe!(bb)
-                @test !isempty(bf) # loaded
-                for blob in bf
-                    @test haskey(blob, "time")
-                    @test blob["time"] < time()
-                end
-    
-                # empty
-                @test !isempty(bb)
-                empty!(bb)
-                @test isempty(bb)
+            bb = BlobBatch()
+            @test !hasfilesys(bb)
+            rootdir!(bb, root)
+            @test hasfilesys(bb)
+            
+            # create frame1
+            bb["frame1"] = 123
+            @test !isfile(bb, "frame1")                # yet only in ram
+            serialize(bb)
+            @test !isfile(bb, "meta")                  # ignore empty meta
+            @test !isfile(bb, "extras")                # ignore extras
+            bb["extras"]["A"] = 234
+            @test !isfile(bb, "extras")                # really ignore extras
+            @test isfile(bb, "frame1")                 # must be on disk
+            @test bb["frame1"] == 123
+            bb["meta"]["A"] = 234
+            serialize(bb)
+            @test isfile(bb, "meta")                   # meta is wasn't empty
+            
+            bb = BlobBatch(root)
+            @test !haskey(bb["extras"], "A")            # extras are trancient
+            @test bb["meta"]["A"] == 234             # meta don't
+            @test hasfilesys(bb)
+            @test hasframe(bb, "frame1")               # on disk
+            @test !isframeloaded(bb, "frame1")         # but not yet loaded
+            loadframe!(bb, "frame1")
+            @test isframeloaded(bb, "frame1")          # now we are talking
+            unloadframe!(bb, "frame1")
+            @test !isframeloaded(bb, "frame1")         
+            @test bb["frame1"] == 123
 
-                # collect
-                push!(bbs, bb)
-            end
-            @test length(bbs) == 10
+            # load unload
         finally
             rm(root; force = true, recursive = true)
         end
     end
-
-    # Test lock
-    let
-        bbroot = joinpath(@__DIR__, "0x77cfa1eef01bca90")
-        rm(bbroot; force = true, recursive = true)
-        try
-            bb = BlobBatch(bbroot)
-            lock(bb)
-            @test islocked(bb)
-            @test unlock(bb)
-            @test !islocked(bb)
-            @test !isfile(lockfile(bb))
-        finally
-            rm(bbroot; force = true, recursive = true)
-        end
-    end
+    
 end
 
 nothing

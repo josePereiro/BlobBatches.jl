@@ -17,6 +17,9 @@ end
 
 # deserialize or create a brand new BlobBatch
 function BlobBatch(rootdir::String)
-    isdir(rootdir) || mkpath(rootdir)
-    return deserialize(BlobBatch, rootdir)
+    isdir(rootdir) && return deserialize(BlobBatch, rootdir)
+    bmeta = BATCHMETA_DATATYPE()
+    bframes = BLOBFRAMES_DATATYPE()
+    extras = EXTRAS_DATATYPE()
+    return BlobBatch(rootdir, bmeta, bframes, extras)
 end
