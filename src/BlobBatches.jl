@@ -9,7 +9,7 @@ module BlobBatches
 
     export BlobBatch
     export deserialize, deserialize!, serialize
-    export hasframe, unloadframe!, loadframe!, isframeloaded
+    export hasframe, unloadframe!, loadallframe!, loadframe!, isframeloaded
     export hasfilesys, rootdir, rootdir!, framefile
     export getlock, setlock!
     export test_blobdb

@@ -10,6 +10,7 @@ function Base.walkdir(::Type{BlobBatch}, root::AbstractString;
             for dir in dirs
                 # path to directories
                 dir = joinpath(currdir, dir)
+                isfile(dir) && continue
                 bb = BlobBatch(dir)
                 skipempty && isempty(bb) && continue
                 put!(_ch, bb)
@@ -27,8 +28,8 @@ function Base.readdir(::Type{BlobBatch}, root::AbstractString;
     files = readdir(root; join = false, sort)
     return Channel{BlobBatch}(chsize) do _ch
         for dir in files
-            isfile(dir) && continue
             dir = joinpath(root, dir)
+            isfile(dir) && continue
             bb = BlobBatch(dir)
             skipempty && isempty(bb) && continue
             put!(_ch, bb)
