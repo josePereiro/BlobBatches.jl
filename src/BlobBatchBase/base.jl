@@ -57,12 +57,14 @@ function Base.show(io::IO, bb::BlobBatch)
 
     # on disk
     # @show framefiles(bb)
-    onDisk = filter(framefiles(bb)) do fn
-        key = _frammekey_from_path(fn)
-        key != "extras" && key != "meta"
-    end
-    if !isempty(onDisk)
-        println(io,     " ondisk frames    [", _quoted_join(basename.(onDisk), ", "), "]")
+    if isdir(bb)
+        onDisk = filter(framefiles(bb)) do fn
+            key = _frammekey_from_path(fn)
+            key != "extras" && key != "meta"
+        end
+        if !isempty(onDisk)
+            println(io,     " ondisk frames    [", _quoted_join(basename.(onDisk), ", "), "]")
+        end
     end
 
 end
