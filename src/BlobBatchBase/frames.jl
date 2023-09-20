@@ -60,7 +60,9 @@ function _getindex(bb::BlobBatch, key::String)
         __frame_notfound_err(bb, key)
     end
     if !isframeloaded(bb, key) # load if needed
-        bb.frames[key] = deserialize(framefile(bb, key))
+        lock(bb) do
+            bb.frames[key] = deserialize(framefile(bb, key))
+        end 
     end
     return getindex(bb.frames, key)
 end
@@ -110,9 +112,25 @@ end
 
 # load frame from disk
 function loadframe!(bb::BlobBatch, k, ks...)
-    key = framekey(k, ks...)
-    bb.frames[key] = deserialize(framefile(bb, key))
-    return bb.frames[key]
+    lock(bb) do
+        key = framekey(k, ks...)
+        bb.frames[key] = deserialize(framefile(bb, key))
+        return bb.frames[key]
+    end
 end
 
 isframeloaded(bb::BlobBatch, k, ks...) = haskey(bb.frames, framekey(k, ks...))
+
+# assumes is valid bb file
+_frammekey_from_path(path) = basename(path)[1:(end - length(_BLOBBATCH_FRAME_EXT))]
+
+
+function loadallframe!(bb::BlobBatch)
+    lock(bb) do
+        for fn in framefiles(bb)
+            key = _frammekey_from_path(fn)
+            key == "extras" && continue # ignore extras
+            bb[key] = serialize(fn, dat)
+        end
+    end
+end

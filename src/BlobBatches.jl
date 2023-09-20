@@ -9,6 +9,7 @@ module BlobBatches
     export deserializa, serialize
     export hasframe, unloadframe!, loadframe!, isframeloaded
     export hasfilesys, rootdir, rootdir!, framefile
+    export getlock, setlock!
     
     #! include .
     
@@ -19,6 +20,7 @@ module BlobBatches
     include("BlobBatchBase/base.jl")
     include("BlobBatchBase/filesys.jl")
     include("BlobBatchBase/frames.jl")
+    include("BlobBatchBase/lock.jl")
     include("BlobBatchBase/serialization.jl")
     include("BlobBatchBase/utils.jl")
 end

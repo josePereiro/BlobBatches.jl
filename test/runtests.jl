@@ -40,6 +40,47 @@ using Test
             @test !isframeloaded(bb, "frame1")         
             @test bb["frame1"] == 123
 
+            # test lock
+            _t = nothing
+            for it in 1:10
+                lock(bb) do
+                    _t = @async lock(bb) do
+                        @async lock(bb) do
+                            bb["task2"] = time() # this must wait the lock
+                        end
+                        sleep(0.1) # discard race
+                        bb["task1"] = time() # this must wait the lock
+                    end
+                    sleep(0.1) # discard race
+                    bb["task0"] = time()
+                end 
+                wait(_t)
+                sleep(0.1) # discard race
+                @test bb["task0"] < bb["task1"]
+                @test bb["task1"] < bb["task2"]
+            end
+
+            # no lock
+            _t = nothing
+            setlock!(bb, nothing)
+            for it in 1:10
+                lock(bb) do # ignored
+                    _t = @async lock(bb) do # ignored
+                        @async lock(bb) do # ignored
+                            bb["task2"] = time()
+                        end
+                        sleep(0.01) # discard race
+                        bb["task1"] = time() # this must wait the lock
+                    end
+                    sleep(0.1) # discard race
+                    bb["task0"] = time()
+                end 
+                wait(_t)
+                sleep(0.1) # discard race
+                @test bb["task2"] < bb["task1"]
+                @test bb["task1"] < bb["task0"]
+            end
+
             # load unload
         finally
             rm(root; force = true, recursive = true)
