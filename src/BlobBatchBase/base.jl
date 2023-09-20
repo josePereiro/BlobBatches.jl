@@ -7,7 +7,18 @@ end
 
 ## --------------------------------------------------------
 import Base.isempty
-Base.isempty(bb::BlobBatch) = isempty(bb.frames)
+function Base.isempty(bb::BlobBatch)
+    # check ram
+    for key in keys(bb.frames)
+        key == "extras" && continue
+        key == "meta" && isempty(bb["meta"]) && continue
+        return false # a frame was created or meta has something
+    end
+    # check disk
+    hasfilesys(bb) || return true
+    isdir(bb) || return true
+    return isempty(framefiles(bb))
+end
 
 ## --------------------------------------------------------
 import Base.merge!
