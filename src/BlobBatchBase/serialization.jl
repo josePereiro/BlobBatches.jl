@@ -11,6 +11,15 @@ function Serialization.serialize(bb::BlobBatch)
     end
 end
 
+function Serialization.serialize(bb::BlobBatch, k, ks...)
+    key = framekey(bb, k, ks...)
+    key == "extras" && error("extras is reserved, do not serialize it!")
+    lock(bb) do
+        serialize(framefile(bb, key), bb[key])
+    end
+    nothing
+end
+
 import Serialization.deserialize
 # load all frames
 function Serialization.deserialize(::Type{BlobBatch}, dir::AbstractString)
@@ -18,3 +27,5 @@ function Serialization.deserialize(::Type{BlobBatch}, dir::AbstractString)
     loadallframe!(bb)
     return bb
 end
+
+deserialize!(bb::BlobBatch, k, ks...) = loadframe!(bb, k, ks...)
