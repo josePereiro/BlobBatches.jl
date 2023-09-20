@@ -13,7 +13,7 @@ function Serialization.serialize(bb::BlobBatch)
 end
 
 function Serialization.serialize(bb::BlobBatch, k, ks...)
-    key = framekey(bb, k, ks...)
+    key = framekey(k, ks...)
     key == "extras" && error("\"extras\" is reserved, do not serialize it!")
     # lock(bb) do
         mkpath(bb)
