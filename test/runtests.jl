@@ -5,10 +5,10 @@ using Test
     # TEST 1
     let
         #
-        root = joinpath(@__DIR__, "blob")
+        root = joinpath(@__DIR__, "blobs")
         rm(root; force = true, recursive = true)
         mkpath(root)
-        try
+        try 
             bb = BlobBatch()
             @test !hasfilesys(bb)
             rootdir!(bb, root)
@@ -16,6 +16,8 @@ using Test
             
             # create frame1
             bb["frame1"] = 123
+            @test_throws r"Frames cannot share prefix" bb["frame1", 1] = 1
+            @test_throws r"Frame not found" bb["not a frame"]
             @test !isfile(bb, "frame1")                # yet only in ram
             serialize(bb)
             @test !isfile(bb, "meta")                  # ignore empty meta

@@ -20,7 +20,7 @@ end
 function __frame_notfound_err(bb::BlobBatch, k, ks...)
     key0 = framekey(k, ks...)
     msg = String[
-        "No frame found, framekey: \"", key0, "\"", 
+        "Frame not found, framekey: \"", key0, "\"", 
     ]
     sims = String[]
     for key in keys(bb.frames)
