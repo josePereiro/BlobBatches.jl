@@ -22,9 +22,30 @@ function framefiles(bb::BlobBatch)
 end
 
 ## --------------------------------------------------------
-import Base.isdir
-Base.isdir(bb::BlobBatch) = isdir(rootdir(bb))
-
-## --------------------------------------------------------
 import Base.isfile
 Base.isfile(bb::BlobBatch, k, ks...) = isfile(framefile(bb, k, ks...))
+
+## --------------------------------------------------------
+import Base.filesize
+function Base.filesize(bb::BlobBatch)
+    fsize = 0.0;
+    for fn in framefiles(bb)
+        fsize += filesize(fn)
+    end
+    return fsize
+end
+
+import Base.rm
+function Base.rm(bb::BlobBatch; force = false)
+    rm(rootdir(bb); force, recursive = true)
+end
+
+import Base.mkpath
+function Base.mkpath(bb::BlobBatch; kwargs...)
+    mkpath(rootdir(bb); kwargs...)
+end
+
+import Base.isdir
+function Base.isdir(bb::BlobBatch)
+    isdir(rootdir(bb))
+end

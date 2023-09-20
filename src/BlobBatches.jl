@@ -1,3 +1,5 @@
+# TODO: add folder size control: Once folder_size > limit, no more serializing (error)
+
 module BlobBatches
 
     using Serialization

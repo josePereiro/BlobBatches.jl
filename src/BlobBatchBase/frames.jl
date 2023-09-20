@@ -91,8 +91,8 @@ import Base.setindex!
 function Base.setindex!(bb::BlobBatch, val::Any, k, ks...)
     key = framekey(k, ks...)
     # check prefix key
-    skey = _find_prefixkey(bb, k, ks...)
-    !isempty(skey) && skey != key && error("Frames cannot share prefix: framekey: ", key, ", existing: ", skey)
+    # skey = _find_prefixkey(bb, k, ks...)
+    # !isempty(skey) && skey != key && error("Frames cannot share prefix: framekey: ", key, ", existing: ", skey)
     # check reserved
     if key == "meta" || key == "extras"
         error("Can not set a reserved frame, framekey: ", key)

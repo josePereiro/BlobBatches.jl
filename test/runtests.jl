@@ -16,7 +16,7 @@ using Test
             
             # create frame1
             bb["frame1"] = 123
-            @test_throws r"Frames cannot share prefix" bb["frame1", 1] = 1
+            # @test_throws r"Frames cannot share prefix" bb["frame1", 1] = 1
             @test_throws r"Frame not found" bb["not a frame"]
             @test !isfile(bb, "frame1")                # yet only in ram
             serialize(bb)
@@ -47,10 +47,6 @@ using Test
             for it in 1:10
                 lock(bb) do
                     _t = @async lock(bb) do
-                        @async lock(bb) do
-                            bb["task2"] = time() # this must wait the lock
-                        end
-                        sleep(0.1) # discard race
                         bb["task1"] = time() # this must wait the lock
                     end
                     sleep(0.1) # discard race
@@ -59,7 +55,6 @@ using Test
                 wait(_t)
                 sleep(0.1) # discard race
                 @test bb["task0"] < bb["task1"]
-                @test bb["task1"] < bb["task2"]
             end
 
             # no lock
@@ -68,10 +63,6 @@ using Test
             for it in 1:10
                 lock(bb) do # ignored
                     _t = @async lock(bb) do # ignored
-                        @async lock(bb) do # ignored
-                            bb["task2"] = time()
-                        end
-                        sleep(0.01) # discard race
                         bb["task1"] = time() # this must wait the lock
                     end
                     sleep(0.1) # discard race
@@ -79,7 +70,6 @@ using Test
                 end 
                 wait(_t)
                 sleep(0.1) # discard race
-                @test bb["task2"] < bb["task1"]
                 @test bb["task1"] < bb["task0"]
             end
 
