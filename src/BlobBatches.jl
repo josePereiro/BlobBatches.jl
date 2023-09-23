@@ -3,7 +3,7 @@
 module BlobBatches
 
     using Serialization
-    using SimpleLockFiles
+    using FileWatching.Pidfile
     using OrderedCollections
     using Base.Threads
 
