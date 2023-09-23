@@ -28,7 +28,10 @@ function Base.islocked(bb::BlobBatch)
     !isnothing(lk) && isopen(lk.fd) && return true 
     # check other
     lk = Pidfile.tryopen_exclusive(lkf)
-    isnothing(lk) && return true
+    if isnothing(lk)
+        rm(lkf; force = true)
+        return true
+    end
     close(lk)
     return false
 end
