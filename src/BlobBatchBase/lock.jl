@@ -8,12 +8,22 @@ function Base.lock(f::Function, bb::BlobBatch; kwargs...)
     lkf = getlock(bb)
     isnothing(lkf) && return f() # ignore locking
     mkpath(dirname(lkf))
-    return mkpidlock(f, lkf; kwargs...)
+    pid, host, _ = Pidfile.parse_pidfile(lkf)
+    Pidfile.isvalidpid(host, pid) || rm(lkf; force = true)
+    lk = mkpidlock(lkf; kwargs...) 
+    try
+        bb["extras"]["_Pidfile.LockMonitor"] = lk
+        return f()
+    finally
+        close(lk)
+    end
 end
 function Base.lock(bb::BlobBatch; kwargs...) 
     lkf = getlock(bb)
     isnothing(lkf) && return # ignore locking 
     mkpath(dirname(lkf))
+    pid, host, _ = Pidfile.parse_pidfile(lkf)
+    Pidfile.isvalidpid(host, pid) || rm(lkf; force = true)
     lk = mkpidlock(lkf; kwargs...)
     bb["extras"]["_Pidfile.LockMonitor"] = lk
     return bb
@@ -21,19 +31,14 @@ end
 
 import Base.islocked
 function Base.islocked(bb::BlobBatch) 
-    lkf = getlock(bb)
+    lkf = BlobBatches.getlock(bb)
     isnothing(lkf) && return false # ignore locking 
     # check mine
     lk = get(bb["extras"], "_Pidfile.LockMonitor", nothing)
     !isnothing(lk) && isopen(lk.fd) && return true 
     # check other
-    lk = Pidfile.tryopen_exclusive(lkf)
-    if isnothing(lk)
-        rm(lkf; force = true)
-        return true
-    end
-    close(lk)
-    return false
+    pid, host, _ = Pidfile.parse_pidfile(lkf)
+    return Pidfile.isvalidpid(host, pid)
 end
 
 import Base.unlock
