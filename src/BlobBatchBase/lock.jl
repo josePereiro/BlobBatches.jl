@@ -6,12 +6,14 @@ setlock!(bb::BlobBatch) = setlock!(bb, _pidfile(bb))
 import Base.lock
 function Base.lock(f::Function, bb::BlobBatch; kwargs...) 
     lkf = getlock(bb)
-    isnothing(lkf) && return f() # ignore locking 
+    isnothing(lkf) && return f() # ignore locking
+    mkpath(dirname(lkf))
     return mkpidlock(f, lkf; kwargs...)
 end
 function Base.lock(bb::BlobBatch; kwargs...) 
     lkf = getlock(bb)
     isnothing(lkf) && return # ignore locking 
+    mkpath(dirname(lkf))
     lk = mkpidlock(lkf; kwargs...)
     bb["extras"]["_Pidfile.LockMonitor"] = lk
     return bb
