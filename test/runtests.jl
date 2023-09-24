@@ -59,7 +59,7 @@ using Test
 
             # no lock
             _t = nothing
-            setlock!(bb, nothing)
+            BlobBatches._lockpath!(bb, nothing)
             for it in 1:10
                 lock(bb) do # ignored
                     _t = @async lock(bb) do # ignored

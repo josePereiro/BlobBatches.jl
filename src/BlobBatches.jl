@@ -3,7 +3,7 @@
 module BlobBatches
 
     using Serialization
-    using FileWatching.Pidfile
+    using SimpleLockFiles
     using OrderedCollections
     using Base.Threads
 
@@ -11,7 +11,6 @@ module BlobBatches
     export deserialize, deserialize!, serialize
     export hasframe, unloadframe!, loadallframe!, loadframe!, isframeloaded
     export hasfilesys, rootdir, rootdir!, framefile
-    export getlock, setlock!
     export test_blobdb
     
     #! include .
