@@ -21,11 +21,11 @@ end
 
 import Base.readdir
 function Base.readdir(::Type{BlobBatch}, root::AbstractString;
-        sort::Bool = true,
+        perm::Function = sort!,
         skipempty = true, 
         chsize = 2
     )
-    files = readdir(root; join = false, sort)
+    files = perm(readdir(root; join = false, sort = false))
     return Channel{BlobBatch}(chsize) do _ch
         for dir in files
             dir = joinpath(root, dir)
@@ -36,3 +36,4 @@ function Base.readdir(::Type{BlobBatch}, root::AbstractString;
         end
     end
 end
+
