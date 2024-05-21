@@ -13,8 +13,8 @@ function test_blobdb(root::AbstractString;
         bb = BlobBatch(bdir)
         # fill some stuff
         bb["meta"]["time"] = time()
+        bb[1] = [] # create
         for _ in 1:nblobs
-            bb[1] = [] # create
             obj = Dict("dat" => datfun(), "time" => time())
             push!(bb[1], obj)
         end

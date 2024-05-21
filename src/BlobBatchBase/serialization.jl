@@ -2,9 +2,10 @@
 import Serialization.serialize
 function Serialization.serialize(bb::BlobBatch)
     for (fkey, dat) in bb.frames
-        # handle reserved
+        # ignore empty meta
         fkey == "meta" && isempty(dat) && continue
-        fkey == "extras" && continue
+        # handle reserved
+        fkey == "temp" && continue
         mkpath(bb)
         serialize(framefile(bb, fkey), dat)
     end
@@ -12,7 +13,7 @@ end
 
 function Serialization.serialize(bb::BlobBatch, k, ks...)
     key = framekey(k, ks...)
-    key == "extras" && error("\"extras\" is reserved, do not serialize it!")
+    key == "temp" && error("\"temp\" is reserved, do not serialize it!")
     mkpath(bb)
     serialize(framefile(bb, key), bb[key])
     nothing

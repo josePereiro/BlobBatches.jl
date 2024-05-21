@@ -1,4 +1,5 @@
 # TODO: add folder size control: Once folder_size > limit, no more serializing (error)
+# TDOD: add read only features
 
 module BlobBatches
 

@@ -1,6 +1,6 @@
 _pidfile(bb::BlobBatch) = joinpath(rootdir(bb), "bb.pidfile")
-_getlock(bb::BlobBatch) = get!(() -> SimpleLockFile(_pidfile(bb)), bb["extras"], "_lock")
-_setlock!(bb::BlobBatch, lk) = setindex!(bb["extras"], lk, "_lock")
+_getlock(bb::BlobBatch) = get!(() -> SimpleLockFile(_pidfile(bb)), bb["temp"], "_lock")
+_setlock!(bb::BlobBatch, lk) = setindex!(bb["temp"], lk, "_lock")
 
 import Base.lock
 function Base.lock(f::Function, bb::BlobBatch; kwargs...) 

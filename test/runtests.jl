@@ -21,9 +21,9 @@ using Test
             @test !isfile(bb, "frame1")                # yet only in ram
             serialize(bb)
             @test !isfile(bb, "meta")                  # ignore empty meta
-            @test !isfile(bb, "extras")                # ignore extras
-            bb["extras"]["A"] = 234
-            @test !isfile(bb, "extras")                # really ignore extras
+            @test !isfile(bb, "temp")                # ignore temp
+            bb["temp"]["A"] = 234
+            @test !isfile(bb, "temp")                # really ignore temp
             @test isfile(bb, "frame1")                 # must be on disk
             @test bb["frame1"] == 123
             bb["meta"]["A"] = 234
@@ -31,7 +31,7 @@ using Test
             @test isfile(bb, "meta")                   # meta is wasn't empty
             
             bb = BlobBatch(root)
-            @test !haskey(bb["extras"], "A")            # extras are trancient
+            @test !haskey(bb["temp"], "A")            # temp are trancient
             @test bb["meta"]["A"] == 234             # meta don't
             @test hasfilesys(bb)
             @test hasframe(bb, "frame1")               # on disk
@@ -59,7 +59,7 @@ using Test
 
             # no lock
             _t = nothing
-            BlobBatches._lockpath!(bb, nothing)
+            BlobBatches._setlock!(bb, nothing)
             for it in 1:10
                 lock(bb) do # ignored
                     _t = @async lock(bb) do # ignored
@@ -114,7 +114,7 @@ using Test
             end
             @test length(bbs) == 10
         finally
-            # rm(root; force = true, recursive = true)
+            rm(root; force = true, recursive = true)
         end
     end
     

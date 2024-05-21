@@ -10,7 +10,7 @@ import Base.isempty
 function Base.isempty(bb::BlobBatch)
     # check ram
     for key in keys(bb.frames)
-        key == "extras" && continue
+        key == "temp" && continue
         key == "meta" && isempty(bb["meta"]) && continue
         return false # a frame was created or meta has something
     end
@@ -60,7 +60,7 @@ function Base.show(io::IO, bb::BlobBatch)
 
     # loaded frames
     loaded = filter(keys(bb.frames)) do key
-        key != "extras" && key != "meta"
+        key != "temp" && key != "meta"
     end
     if !isempty(loaded)
         println(io,     " loaded frames    [", _quoted_join(loaded, ", "), "]")
@@ -70,8 +70,8 @@ function Base.show(io::IO, bb::BlobBatch)
     # @show framefiles(bb)
     if isdir(bb)
         onDisk = filter(framefiles(bb)) do fn
-            key = _frammekey_from_path(fn)
-            key != "extras" && key != "meta"
+            key = _framekey_from_path(fn)
+            key != "temp" && key != "meta"
         end
         if !isempty(onDisk)
             println(io,     " ondisk frames    [", _quoted_join(basename.(onDisk), ", "), "]")

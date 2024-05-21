@@ -5,7 +5,6 @@ _framekey(k::Symbol) = string(k)
 __framekey(ks...) = (_framekey(k) for k in ks)
 framekey(k, ks...) = join(__framekey(k, ks...), "..")
 
-#  return true if all indexes where used
 function __walkup_framekey(f::Function, ks...)
     i0 = firstindex(ks)
     i1 = lastindex(ks)
@@ -38,8 +37,9 @@ end
 # check both ram and disk
 function hasframe(bb::BlobBatch, k, ks...)
     key = framekey(k, ks...)
-    haskey(bb.frames, key) && return true
     # check file is loaded
+    haskey(bb.frames, key) && return true
+    # check in disk
     hasfilesys(bb) || return false
     isfile(bb, key) || return false
     return true
@@ -51,8 +51,8 @@ end
 ## --------------------------------------------------------
 # get frame
 function _getindex(bb::BlobBatch, key::String)
-    # extras
-    key == "extras" && return get!(() -> Dict{String, Any}(), bb.frames, key)
+    # temp
+    key == "temp" && return get!(() -> Dict{String, Any}(), bb.frames, key)
     if !hasframe(bb, key) # check both ram and disk
         # meta
         key == "meta" && return get!(() -> Dict{String, Any}(), bb.frames, key)
@@ -92,7 +92,7 @@ function Base.setindex!(bb::BlobBatch, val::Any, k, ks...)
     # skey = _find_prefixkey(bb, k, ks...)
     # !isempty(skey) && skey != key && error("Frames cannot share prefix: framekey: ", key, ", existing: ", skey)
     # check reserved
-    if key == "meta" || key == "extras"
+    if key == "meta" || key == "temp"
         error("Can not set a reserved frame, framekey: ", key)
     end
     # create frame
@@ -116,14 +116,14 @@ function loadframe!(bb::BlobBatch, k, ks...)
 end
 
 # assumes is valid bb file
-_frammekey_from_path(path) = basename(path)[1:(end - length(_BLOBBATCH_FRAME_EXT))]
+_framekey_from_path(path) = basename(path)[1:(end - length(_BLOBBATCH_FRAME_EXT))]
 
 
 function loadallframe!(bb::BlobBatch)
     for fn in framefiles(bb)
-        key = _frammekey_from_path(fn)
+        key = _framekey_from_path(fn)
         # reserved
-        key == "extras" && continue # ignore extras
+        key == "temp" && continue # ignore temp
         loadframe!(bb, key)
     end
 end

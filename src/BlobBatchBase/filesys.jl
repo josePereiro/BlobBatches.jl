@@ -1,10 +1,10 @@
 ## --------------------------------------------------------
 # files
-rootdir(bb::BlobBatch) = abspath(getindex(bb["extras"], "_rootdir"))
-rootdir!(bb::BlobBatch, dir) = setindex!(bb["extras"], abspath(dir), "_rootdir")
+rootdir(bb::BlobBatch) = abspath(getindex(bb["temp"], "_rootdir"))
+rootdir!(bb::BlobBatch, dir) = setindex!(bb["temp"], abspath(dir), "_rootdir")
 
 ## --------------------------------------------------------
-hasfilesys(bb::BlobBatch) = haskey(bb["extras"], "_rootdir")
+hasfilesys(bb::BlobBatch) = haskey(bb["temp"], "_rootdir")
 
 ## --------------------------------------------------------
 const _BLOBBATCH_FRAME_EXT = ".bbframe.jls"
